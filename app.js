@@ -1,8 +1,7 @@
 const express = require('express');
 const app = express();
 const mongoose  = require('mongoose');
-const choristeRoutes= require ("./routes/choriste")
-const oeuvreRoutes= require ("./routes/oeuvre")
+const userRoutes= require ("./routes/user")
 
 mongoose.connect('mongodb://127.0.0.1:27017/DsNode')
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -21,8 +20,7 @@ app.use((req, res, next) => {
   });
 
 
-  app.use("/api/choriste", choristeRoutes)
-  app.use("/api/oeuvre", oeuvreRoutes)
+  app.use("/api/user", userRoutes)
 
 
 
