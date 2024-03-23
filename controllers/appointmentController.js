@@ -1,4 +1,10 @@
-const Appointment = require('../models/appointment');
+const Appointment = require("../models/appointment");
+const cron = require("node-cron");
+const { onlineUsers, io } = require("../socket/socketServer");
+// const sendNotification = require("../utils/SendNotification");
+const { sendNotification,addNotification } = require("./notificationcontroller");
+
+const User = require("../models/user");
 
 exports.createAppointment = async (req, res) => {
   try {
@@ -23,7 +29,7 @@ exports.getAppointmentById = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
     if (!appointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé.' });
+      return res.status(404).json({ message: "Rendez-vous non trouvé." });
     }
     res.json(appointment);
   } catch (error) {
@@ -33,9 +39,13 @@ exports.getAppointmentById = async (req, res) => {
 
 exports.updateAppointment = async (req, res) => {
   try {
-    const updatedAppointment = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedAppointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé.' });
+      return res.status(404).json({ message: "Rendez-vous non trouvé." });
     }
     res.json(updatedAppointment);
   } catch (error) {
@@ -43,15 +53,77 @@ exports.updateAppointment = async (req, res) => {
   }
 };
 
-// Supprimer un rendez-vous
 exports.deleteAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndDelete(req.params.id);
     if (!appointment) {
-      return res.status(404).json({ message: 'Rendez-vous non trouvé.' });
+      return res.status(404).json({ message: "Rendez-vous non trouvé." });
     }
-    res.json({ message: 'Rendez-vous supprimé avec succès.' });
+    res.json({ message: "Rendez-vous supprimé avec succès." });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+cron.schedule("0 0 * * *", async () => {
+ try {
+   const currentTime = new Date();
+   const next24Hours = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+
+
+   const appointmentsWithin24Hours = await Appointment.find({
+     dateTime: { $gte: currentTime, $lt: next24Hours },
+   })
+     .populate("user")
+     .populate("doctor");
+   if (appointmentsWithin24Hours.length > 0) {
+     for (const appointment of appointmentsWithin24Hours) {
+       const patient = appointment.user;
+       const existingUser = onlineUsers.find(
+         (user) => user.userId === patient._id.toString()
+       );
+       if (existingUser) {
+         const req = {
+           notificationdetails: {
+             userSocketId: existingUser.socketId,
+             notif_body: `RAPPEL : un rendez-vous est programmé pour aujourd'hui le ${new Date(
+               appointment.dateTime
+             ).toLocaleDateString()},
+              à ${new Date(
+                appointment.dateTime
+              ).toLocaleTimeString()} avec Dr ${appointment.doctor.email}`,
+           },
+         };
+
+         await sendNotification(req, null, async () => {
+           res
+             .status(200)
+             .json({ message: "Utilisateurs récupérés avec succès" });
+         });
+       }
+       const data = {
+         body: {
+           userId: patient._id.toString(),
+           newMessage: `RAPPEL : un rendez-vous est programmé pour aujourd'hui le ${new Date(
+             appointment.dateTime
+           ).toLocaleDateString()},
+              à ${new Date(
+                appointment.dateTime
+              ).toLocaleTimeString()} avec Dr ${appointment.doctor.email}`,
+         },
+       };
+
+       await addNotification(data, null, async () => {
+         res
+           .status(200)
+           .json({ message: "Utilisateurs récupérés avec succès" });
+       });
+     }
+   }
+ } catch (error) {
+     "Erreur lors de la vérification des rendez-vous dans les 24 prochaines heures :",
+     error
+   );
+ }
+});
