@@ -1,10 +1,10 @@
 {
   "name": "node-ds",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server",
+    "start": "node app",
+    "dev": "nodemon app",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,9 +13,12 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cron": "^3.1.6",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.2.0",
-    "mongoose": "^8.0.0"
+    "mongoose": "^8.0.0",
+    "node-cron": "^3.0.3",
+    "socket.io": "^4.7.5"
   }
 }
