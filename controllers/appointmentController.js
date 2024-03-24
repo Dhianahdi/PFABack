@@ -122,6 +122,7 @@ cron.schedule("0 0 * * *", async () => {
      }
    }
  } catch (error) {
+   console.error(
      "Erreur lors de la vérification des rendez-vous dans les 24 prochaines heures :",
      error
    );
