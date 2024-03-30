@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
       return this.role === "doctor";
     },
   },
+  Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
 
   username: String,
   email: String,

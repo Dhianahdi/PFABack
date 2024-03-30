@@ -119,7 +119,7 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().populate("Specialty");;
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -128,7 +128,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate("Specialty");;
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
@@ -159,6 +159,29 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
     res.json({ message: "Utilisateur supprimé avec succès." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+exports.getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await User.find({ role: "doctor" }).populate("Specialty");;
+    res.json(doctors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserByEmail = async (req, res) => {
+  try {
+    const userEmail = req.params.email;
+    const user = await User.findOne({ email: userEmail }).populate("Specialty");;
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

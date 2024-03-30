@@ -8,7 +8,7 @@ const notificationSchema = new Schema({
       required: true,
     },
   ],
-  user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
