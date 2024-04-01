@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   prenom: { type: String, required: true },
   sexe: { type: String, enum: ["Male", "Female"] },
   date_naissance: { type: Date },
+  image: { type: String },
   telephone: { type: String },
   telephone_2: { type: String },
   telephone_3: { type: String },
@@ -28,6 +29,7 @@ const userSchema = new mongoose.Schema({
     },
   },
   Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
+  availability: { type: Schema.Types.ObjectId, ref: "Availability",  },
 
   username: String,
   email: String,

@@ -8,9 +8,13 @@ const appointmentSchema = new mongoose.Schema({
   },
   doctor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "User", // Assuming "User" is the name of the related model
   },
-  dateTime: Date,
+  dateTime: {
+    type: Date,
+    unique: true, 
+  },
 });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);
+
