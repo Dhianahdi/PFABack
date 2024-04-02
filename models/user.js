@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema(
     prenom: { type: String, required: true },
     sexe: { type: String, enum: ["Male", "Female"] },
     date_naissance: { type: Date },
-    telephone: { type: String },
+    image: { type: String },
+  telephone: { type: String },
     telephone_2: { type: String },
     telephone_3: { type: String },
     gouvernorat: {
@@ -28,6 +29,8 @@ const userSchema = new mongoose.Schema(
         return this.role === "doctor";
       },
     },
+  Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
+  availability: { type: Schema.Types.ObjectId, ref: "Availability",  },
 
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },

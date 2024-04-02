@@ -8,13 +8,13 @@ const availabilitySchema = new mongoose.Schema(
       type: {
         isAvailable: { type: Boolean, required: true },
         startTime: {
-          type: Date,
+          type: String,
           required: function () {
             return this.isAvailable;
           },
         },
         endTime: {
-          type: Date,
+          type: String,
           required: function () {
             return this.isAvailable;
           },
