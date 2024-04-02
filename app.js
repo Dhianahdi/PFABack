@@ -11,6 +11,7 @@ const userRoutes = require('./routes/user')
 const availabilityRoutes = require('./routes/availability')
 const appointmentRoutes = require('./routes/appointment')
 const notificationRoutes = require('./routes/notification')
+const EmailVerificationRoutes = require("./routes/EmailVerification");
 
 server.listen(port, () => {
   console.log('Listening on ' + port)
@@ -42,5 +43,6 @@ app.use('/api/user', userRoutes)
 app.use('/api/availability', availabilityRoutes)
 app.use('/api/appointment', appointmentRoutes)
 app.use('/api/notification', notificationRoutes)
+app.use("/api/EmailVerification", EmailVerificationRoutes);
 
 module.exports = app
