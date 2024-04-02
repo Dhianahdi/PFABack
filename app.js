@@ -37,6 +37,20 @@ app.use((req, res, next) => {
   )
   next()
 })
+app.post('/api/upload', (req, res) => {
+  const imageFile = req.files.image;
+
+  // Get the filename from the request
+  const filename = req.files.image.name;
+
+  // Save the image to the assets/img/ directory
+  imageFile.mv(`./img/${filename}`, (err) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    res.send({ filename });
+  });
+});
 
 app.use('/api/user', userRoutes)
 app.use('/api/availability', availabilityRoutes)

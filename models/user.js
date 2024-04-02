@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   prenom: { type: String, required: true },
   sexe: { type: String, enum: ["Male", "Female"] },
   date_naissance: { type: Date },
-  image: { type: String },
+  image: { type: String, default: "user.png" },
   telephone: { type: String },
   telephone_2: { type: String },
   telephone_3: { type: String },
@@ -31,6 +31,18 @@ const userSchema = new mongoose.Schema({
   Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
   availability: { type: Schema.Types.ObjectId, ref: "Availability",  },
 
+  geolocalisation: {
+    type: {
+      longitude: {
+        type: Number,
+    
+      },
+      latitude: {
+        type: Number,
+     
+      },
+    },
+  },
   username: String,
   email: String,
   password: String,
