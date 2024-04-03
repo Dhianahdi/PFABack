@@ -10,7 +10,7 @@ router.get('/getAllDoctors', userController.getAllDoctors);
 router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
-router.get("/request/resetPassword", resetPasswordController.requestPasswordReset);
+router.get("/request/resetPassword/:email", resetPasswordController.requestPasswordReset);
 router.patch("/reset/password", resetPasswordController.resetPassword);
 
 router.post("/signup", userController.signup);

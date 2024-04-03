@@ -36,7 +36,7 @@ const sendPasswordResetEmail = async (email, code) => {
       <li>Saisissez votre nouveau mot de passe.</li>
     </ol>
     <div style="text-align: center; margin-top: 20px;">
-      <a href="http://localhost:5000/reset-password?email=${email}&code=${code}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Réinitialiser mon mot de passe</a>
+      <a href="http://localhost:4200/reset-password" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Réinitialiser mon mot de passe</a>
     </div>
     <p>Si vous n'avez pas demandé de réinitialisation de mot de passe, veuillez ignorer cet e-mail.</p>
   </div>
@@ -59,7 +59,9 @@ const sendPasswordResetEmail = async (email, code) => {
 
 exports.requestPasswordReset = async (req, res) => {
   try {
-    const { email } = req.body;
+        console.log("req.body: ", req.params.email);
+    const  email  = req.params.email;
+
     console.log('email: ', email);
 
     const user = await User.findOne({ email });
