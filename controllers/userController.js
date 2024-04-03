@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Specialty = require('../models/specialty')
 const Review = require('../models/review')
+const { sendVerificationEmail } = require("./EmailVerification");
 
 exports.getDoctorsInfo = async (req, res) => {
   try {
@@ -56,6 +57,9 @@ exports.signup = (req, res, next) => {
         code_postal: req.body.code_postal,
         username: req.body.username,
         email: req.body.email,
+        token: jwt.sign({ email: req.body.email }, "EMAIL TOKEN", {
+          expiresIn: "72h",
+        }),
         password: hash,
         role: req.body.role,
       })
@@ -64,6 +68,8 @@ exports.signup = (req, res, next) => {
         .then((response) => {
           const newUser = response.toObject()
           delete newUser.password
+          delete newUser.token;
+          sendVerificationEmail(response.toObject());
           res.status(201).json({
             user: newUser,
             message: 'user created !',
@@ -71,7 +77,7 @@ exports.signup = (req, res, next) => {
         })
         .catch((error) => res.status(400).json({ error: error.message }))
     })
-    .catch((error) => res.status(500).json({ error }))
+    .catch((error) => res.status(500).json({ error: error.message }))
 }
 
 exports.login = async (req, res, next) => {
