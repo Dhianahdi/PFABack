@@ -3,6 +3,7 @@ const app = express()
 
 const http = require('http')
 const port = process.env.PORT || 5000
+const multer = require('multer');
 
 const server = http.createServer(app)
 const { io } = require('./socket/socketServer')
@@ -39,20 +40,34 @@ app.use((req, res, next) => {
   )
   next()
 })
-app.post('/api/upload', (req, res) => {
-  const imageFile = req.files.image;
 
-  // Get the filename from the request
-  const filename = req.files.image.name;
 
-  // Save the image to the assets/img/ directory
-  imageFile.mv(`./img/${filename}`, (err) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    res.send({ filename });
-  });
+const path = require('path');
+
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './img'); 
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9); 
+    const extname = path.extname(file.originalname); 
+    cb(null, uniqueSuffix + extname);
+  }
 });
+
+const upload = multer({ storage: storage });
+
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('Aucun fichier téléchargé.');
+  }
+
+  res.send({ filename: req.file.filename });
+});
+
+app.use('/img', express.static(path.join(__dirname, 'img')))
 
 app.use('/api/user', userRoutes)
 app.use('/api/availability', availabilityRoutes)
