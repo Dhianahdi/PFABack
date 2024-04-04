@@ -80,37 +80,50 @@ exports.signup = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: error.message }))
 }
 
-exports.login = (req, res, next) => {
-  user
-    .findOne({ email: req.body.email })
-    .then((user) => {
-      if (!user) {
-        return res.status(401).json({ message: 'login ou pass incorrect' })
-      }
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password, longitude, latitude } = req.body
+console.log(req.body)
+    // Find user by email
+    const user = await User.findOne({ email })
 
-      bcrypt.compare(req.body.password, user.password).then((valid) => {
-        if (!valid) {
-          return res.status(401).json({ message: 'login ou MP inco' })
-        }
-        token: jwt.sign(
-          { userId: user._id, userType: user.type },
-          'RANDOM TOKEN',
-          {
-            expiresIn: '24h',
-          },
-        )
-        res.status(200).json({
-          token: jwt.sign(
-            { userId: user._id, userType: user.type },
-            'RANDOM TOKEN',
-            {
-              expiresIn: '24h',
-            },
-          ),
-        })
-      })
-    })
-    .catch((error) => res.status(500).json({ error: error }))
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: 'Login ou mot de passe incorrect' })
+    }
+
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password)
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .json({ message: 'Login ou mot de passe incorrect' })
+    }
+
+    // If longitude and latitude are provided, update user's location
+    if (longitude !== undefined && latitude !== undefined) {
+      user.geolocalisation = {
+        longitude,
+        latitude
+      };
+      console.log(user)
+
+      await user.save()
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { userId: user._id, userType: user.type },
+      'RANDOM TOKEN', // Replace with your secret key
+      { expiresIn: '24h' },
+    )
+
+    // Send token in response
+    res.status(200).json({ token })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 }
 
 exports.createUser = async (req, res) => {
@@ -147,7 +160,9 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate('Specialty')      .populate('availability')
+    const user = await User.findById(req.params.id)
+      .populate('Specialty')
+      .populate('availability')
 
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé.' })
@@ -203,5 +218,27 @@ exports.getUserByEmail = async (req, res) => {
     res.json(user)
   } catch (error) {
     res.status(500).json({ message: error.message })
+  }
+
+  exports.addGeolocation = async (req, res) => {
+    try {
+      const { userId, longitude, latitude } = req.body
+
+      const user = await User.findById(userId)
+      if (!user) {
+        return res.status(404).json({ message: 'Utilisateur non trouvé.' })
+      }
+
+      user.geolocalisation = {
+        longitude: parseFloat(longitude),
+        latitude: parseFloat(latitude),
+      }
+
+      await user.save()
+
+      res.status(200).json({ message: 'Géolocalisation ajoutée avec succès.' })
+    } catch (error) {
+      res.status(500).json({ message: error.message })
+    }
   }
 }
