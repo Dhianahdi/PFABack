@@ -9,8 +9,28 @@ const {
 
 const User = require('../models/user')
 
+exports.getAppointmentsByDateAndDoctor = async (req, res) => {
+  try {
+    const { doctorId, date } = req.params
+    const appointmentDate = new Date(date)
+    console.log(doctorId, appointmentDate)
 
+    const appointments = await Appointment.find({
+      doctor: doctorId,
+      dateTime: {
+        $gte: appointmentDate,
+        $lt: new Date(date + 'T23:59:59.999Z'),
+      },
+    })
+      .populate('user')
+      .exec()
+    console.log(appointments)
 
+    res.json(appointments)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
 exports.addAppointment = async (req, res) => {
   try {

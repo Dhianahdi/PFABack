@@ -4,6 +4,7 @@ const userController = require("../controllers/userController");
 const resetPasswordController = require("../controllers/resetPassword");
 
 router.post("/", userController.createUser);
+router.post("/doctor", userController.createdoc);
 router.get("/", userController.getAllUsers);
 router.get('/getUserByEmail/:email', userController.getUserByEmail);
 router.get('/getAllDoctors', userController.getAllDoctors);

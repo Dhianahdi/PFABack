@@ -211,7 +211,7 @@ exports.getAllDoctors = async (req, res) => {
 exports.getUserByEmail = async (req, res) => {
   try {
     const userEmail = req.params.email
-    const user = await User.findOne({ email: userEmail }).populate('Specialty')
+    const user = await User.findOne({ email: userEmail }).populate('Specialty').populate('availability')
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé.' })
     }
@@ -242,3 +242,66 @@ exports.getUserByEmail = async (req, res) => {
     }
   }
 }
+
+const Availability = require("../models/availability");
+
+exports.createdoc = async (req, res) => {
+  try {
+    const { nom, prenom, sexe, date_naissance, telephone, gouvernorat, avenue, code_postal, Specialty, email, password, role } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists with this email" });
+    }
+
+    // Hasher le mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Créer l'utilisateur
+    const newUser = new User({
+      nom,
+      prenom,
+      sexe,
+      date_naissance,
+      telephone,
+
+      gouvernorat,
+      avenue,
+      code_postal,
+      Specialty,
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    // Sauvegarder l'utilisateur
+    await newUser.save();
+
+    // Si l'utilisateur est un médecin, créer automatiquement une disponibilité par défaut
+    if (role === "doctor") {
+      const defaultAvailability = new Availability({
+        doctor: newUser._id,
+        normalDays: {
+          isAvailable: true,
+            startTime: "08:00",
+        endTime: "17:00",
+        },
+        saturday: {
+          isAvailable: false,
+        },
+        sunday: {
+          isAvailable: false,
+        },
+      });
+
+      await defaultAvailability.save();
+
+      newUser.availability = defaultAvailability._id;
+      await newUser.save();
+    }
+
+    res.status(201).json(newUser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
