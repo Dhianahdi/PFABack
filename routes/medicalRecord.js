@@ -4,6 +4,6 @@ const medicalRecordController = require('../controllers/medicalRecordController'
 
 router.get('/:patientId', medicalRecordController.getMedicalRecordByPatientId);
 router.post('/add-remark/:patientId', medicalRecordController.createMedicalRecord);
-router.put("/:patientId/update-remark",medicalRecordController.updateRemark);
+router.put("/update-remark/:patientId", medicalRecordController.updateRemark);
 
 module.exports = router;

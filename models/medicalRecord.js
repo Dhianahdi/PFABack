@@ -10,17 +10,18 @@ const medicalRecordSchema = new mongoose.Schema(
     medicalHistory: {
       type: Map,
       of: {
-        remarks: [String],
-        date: {
-          type: Date,
-          default: Date.now,
-        },
+        remarks: [
+          {
+            remark: String,
+            date: {
+              type: Date,
+              default: Date.now,
+            },
+          },
+        ],
       },
     },
   },
-  {
-    timestamps: true,
-  }
 );
 
 module.exports = mongoose.model("MedicalRecord", medicalRecordSchema);

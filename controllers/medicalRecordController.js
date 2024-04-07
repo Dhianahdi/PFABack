@@ -1,11 +1,12 @@
 const MedicalRecord = require("../models/medicalRecord");
+const User = require("../models/user");
 
 exports.createMedicalRecord = async (req, res) => {
   try {
     const patientId = req.params.patientId;
     const { doctorId, remark } = req.body;
 
-    // Vérifier si le patient a déjà un dossier médical
+    // Recherche du dossier médical du patient
     let medicalRecord = await MedicalRecord.findOne({ patient: patientId });
 
     // Si le dossier médical n'existe pas, créer un nouveau dossier
@@ -18,9 +19,16 @@ exports.createMedicalRecord = async (req, res) => {
 
     // Ajouter la remarque à medicalHistory
     if (!medicalRecord.medicalHistory.has(doctorId)) {
-      medicalRecord.medicalHistory.set(doctorId, { remarks: [remark] });
+      // Ajouter la première remarque avec la date d'ajout
+      medicalRecord.medicalHistory.set(doctorId, {
+        remarks: [{ remark, date: Date.now() }],
+      });
     } else {
-      medicalRecord.medicalHistory.get(doctorId).remarks.push(remark);
+      // Ajouter la remarque avec la date d'ajout
+      medicalRecord.medicalHistory.get(doctorId).remarks.push({
+        remark,
+        date: Date.now(),
+      });
     }
 
     // Enregistrer les modifications ou le nouveau dossier médical
@@ -60,10 +68,8 @@ exports.updateRemark = async (req, res) => {
     }
 
     // Mettre à jour la remarque et ajouter la date de modification
-    doctorRecord.remarks[remarkIndex] = {
-      remark: newRemark,
-      dateModified: Date.now(),
-    };
+    doctorRecord.remarks[remarkIndex].remark = newRemark;
+    doctorRecord.remarks[remarkIndex].dateModified = Date.now();
 
     // Mettre à jour le medicalHistory dans le dossier médical
     medicalRecord.medicalHistory.set(doctorId, doctorRecord);
@@ -78,6 +84,7 @@ exports.updateRemark = async (req, res) => {
   }
 };
 
+
 exports.getMedicalRecordByPatientId = async (req, res) => {
   try {
     const patientId = req.params.patientId;
@@ -89,9 +96,39 @@ exports.getMedicalRecordByPatientId = async (req, res) => {
       return res.status(404).json({ message: "Medical record not found" });
     }
 
-    res.status(200).json({ medicalRecord });
+    // Préparer les données à renvoyer
+    let medicalData = [];
+
+    // Parcourir chaque entrée médicale dans le dossier médical
+    for (const [
+      doctorId,
+      doctorRecord,
+    ] of medicalRecord.medicalHistory.entries()) {
+      // Récupérer le nom du médecin à partir de l'ID
+      const doctor = await User.findById(doctorId);
+      if (!doctor) {
+        console.error("Doctor not found with ID:", doctorId);
+        continue; // Passez à l'entrée suivante s'il n'y a pas de médecin correspondant
+      }
+
+      // Pour chaque remarque, ajouter le nom du médecin
+      const remarksWithDoctorName = doctorRecord.remarks.map((remark) => ({
+        remark: remark.remark,
+        date: remark.date,
+        doctorName: `${doctor.nom} ${doctor.prenom}`,
+      }));
+
+      // Ajouter les remarques au tableau de données médicales
+      medicalData = [...medicalData, ...remarksWithDoctorName];
+    }
+
+    // Trier les remarques par date
+    medicalData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.status(200).json({ medicalData });
   } catch (error) {
     console.error("Error getting medical record:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
