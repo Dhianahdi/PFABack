@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const medicalRecordSchema = new mongoose.Schema(
   {
@@ -7,13 +7,20 @@ const medicalRecordSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    medicalHistory: String,
-    allergies: [String],
-    currentMedications: [String],
+    medicalHistory: {
+      type: Map,
+      of: {
+        remarks: [String],
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model('MedicalRecord', medicalRecordSchema);
+module.exports = mongoose.model("MedicalRecord", medicalRecordSchema);
