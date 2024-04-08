@@ -11,6 +11,10 @@ router.get(
   '/getAppointmentsByUserEmail/:email',
   appointmentController.getAppointmentsByUserEmail,
 )
+router.get(
+  '/getAppointmentsBydoctorEmail/:email',
+  appointmentController.getAppointmentsBydoctorEmail,
+)
 router.put('/:id', appointmentController.updateAppointment)
 router.delete('/:id', appointmentController.deleteAppointment)
 
