@@ -132,3 +132,70 @@ exports.getMedicalRecordByPatientId = async (req, res) => {
   }
 };
 
+
+
+exports.getRemarksByDoctor = async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+
+    // Recherche de toutes les entrées médicales associées au médecin spécifique
+    const medicalRecords = await MedicalRecord.find({
+     
+      [`medicalHistory.${doctorId}`]: { $exists: true },
+    }).populate("patient");
+ //console.log('medicalRecords: ', medicalRecords);
+    // Initialiser un objet pour stocker les remarques groupées par patient
+    const remarksByPatient = {};
+
+    // Parcourir chaque entrée médicale
+    medicalRecords.forEach((medicalRecord) => {
+      // Récupérer le nom et le prénom du patient
+      const patientName = medicalRecord.patient.nom;
+      const patientSurname = medicalRecord.patient.prenom;
+
+
+      // Récupérer les remarques associées au médecin spécifique
+      const doctorRecord = medicalRecord.medicalHistory.get(doctorId);
+     // console.log('doctorRecord: ', doctorRecord);
+      if (!doctorRecord) {
+        return; // Si aucune remarque associée au médecin, passer à l'entrée suivante
+      }
+
+      // Vérifier si le patient existe dans le groupe
+      if (!remarksByPatient[medicalRecord.patient._id]) {
+        remarksByPatient[medicalRecord.patient._id] = {
+          patientName,
+          patientSurname,
+          remarks: [],
+        };
+      }
+
+      // Ajouter les remarques du patient
+      doctorRecord.remarks.forEach((remark) => {
+        remarksByPatient[medicalRecord.patient._id].remarks.push({
+          remark: remark.remark,
+          date: remark.date,
+        });
+      });
+    });
+
+   // console.log("remarksByPatient: ", remarksByPatient);
+    
+
+    // Trier les remarques de chaque patient par date
+    for (const patientId in remarksByPatient) {
+      remarksByPatient[patientId].remarks.sort(
+        
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+    }
+//console.log('remarksByPatient: ', remarksByPatient);
+    res.status(200).json({ remarksByPatient });
+  } catch (error) {
+    console.error("Error getting remarks by doctor:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
