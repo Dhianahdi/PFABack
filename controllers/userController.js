@@ -54,6 +54,7 @@ exports.signup = (req, res, next) => {
         telephone_3: req.body.telephone_3,
         gouvernorat: req.body.gouvernorat,
         avenue: req.body.avenue,
+        Specialty : req.body.Specialty,
         code_postal: req.body.code_postal,
         username: req.body.username,
         email: req.body.email,
@@ -189,6 +190,7 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
+    console.log(req.params.id);
     const user = await User.findByIdAndDelete(req.params.id)
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé.' })

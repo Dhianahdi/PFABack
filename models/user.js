@@ -8,51 +8,60 @@ const userSchema = new mongoose.Schema(
     sexe: { type: String, enum: ["Male", "Female"] },
     date_naissance: { type: Date },
     image: { type: String, default: "user.png" },
-    telephone: { type: String },
+    telephone: {
+      type: String,
+      required: function () {
+        return this.role === "doctor";
+      },
+    },
     telephone_2: { type: String },
     telephone_3: { type: String },
     gouvernorat: {
       type: String,
-      required: function () {
-        return this.role === "doctor";
-      },
+      // required: function () {
+      //   return this.role === "doctor";
+      // },
     },
     avenue: {
       type: String,
-      required: function () {
-        return this.role === "doctor";
-      },
+      // required: function () {
+      //   return this.role === "doctor";
+      // },
     },
     code_postal: {
       type: String,
+      // required: function () {
+      //   return this.role === "doctor";
+      // },
+    },
+    Specialty: {
+      type: Schema.Types.ObjectId,
+      ref: "Specialty",
       required: function () {
         return this.role === "doctor";
       },
     },
-  Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
-  availability: { type: Schema.Types.ObjectId, ref: "Availability",  },
+    availability: { type: Schema.Types.ObjectId, ref: "Availability" },
 
-  geolocalisation: {
-    type: {
-      longitude: {
-        type: Number,
-    
-      },
-      latitude: {
-        type: Number,
-     
+    geolocalisation: {
+      type: {
+        longitude: {
+          type: Number,
+        },
+        latitude: {
+          type: Number,
+        },
       },
     },
-  },
-    username: { type: String },
+    username: { type: String, unique: true },
     email: { type: String, required: true, unique: true },
-    token: { type: String},
+    token: { type: String },
     isVerified: {
       type: Boolean,
       default: false,
     },
     password: { type: String, required: true },
-    newPasswordCode: { type: String, unique : true, default: null },
+    newPasswordCode: { type: String, unique: true, default: null },
     role: {
       type: String,
       enum: ["patient", "doctor", "admin"],
