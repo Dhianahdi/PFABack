@@ -13,21 +13,21 @@ const userSchema = new mongoose.Schema(
     telephone_3: { type: String },
     gouvernorat: {
       type: String,
-      // required: function () {
-      //   return this.role === "doctor";
-      // },
+      required: function () {
+        return this.role === "doctor";
+      },
     },
     avenue: {
       type: String,
-      // required: function () {
-      //   return this.role === "doctor";
-      // },
+      required: function () {
+        return this.role === "doctor";
+      },
     },
     code_postal: {
       type: String,
-      // required: function () {
-      //   return this.role === "doctor";
-      // },
+      required: function () {
+        return this.role === "doctor";
+      },
     },
   Specialty: { type: Schema.Types.ObjectId, ref: "Specialty",  },
   availability: { type: Schema.Types.ObjectId, ref: "Availability",  },

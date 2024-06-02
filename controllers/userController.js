@@ -40,6 +40,53 @@ exports.getDoctorDetails = async (req, res) => {
   }
 }
 
+
+exports.addDoctor = (req, res, next) => {
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      const user = new User({
+        nom: req.body.nom,
+        prenom: req.body.prenom,
+        sexe: req.body.sexe,
+        date_naissance: req.body.date_naissance,
+        telephone: req.body.telephone,
+        telephone_2: req.body.telephone_2,
+        telephone_3: req.body.telephone_3,
+        gouvernorat: req.body.gouvernorat,
+        avenue: req.body.avenue,
+        code_postal: req.body.code_postal,
+        username: req.body.username,
+        Specialty: req.body.Specialty,
+        email: req.body.email,
+        token: jwt.sign({ email: req.body.email }, "EMAIL TOKEN", {
+          expiresIn: "72h",
+        }),
+        password: hash,
+        role: req.body.role,
+        geolocalisation: {
+          latitude: req.body.latitude,
+          longitude: req.body.longitude,
+        },
+      });
+      user
+        .save()
+        .then((response) => {
+          const newUser = response.toObject();
+          delete newUser.password;
+          delete newUser.token;
+          sendVerificationEmail(response.toObject());
+          res.status(201).json({
+            user: newUser,
+            message: "user created !",
+          });
+        })
+        .catch((error) => res.status(400).json({ error: error.message }));
+    })
+    .catch((error) => res.status(500).json({ error: error.message }));
+};
+
+
 exports.signup = (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
@@ -119,7 +166,10 @@ exports.login = async (req, res, next) => {
     )
 
     // Send token in response
-    res.status(200).json({ token })
+    res.status(200).json({
+      token : token,
+      role : user.role
+    })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

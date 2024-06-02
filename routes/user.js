@@ -17,6 +17,7 @@ router.get("/request/resetPassword/:email", resetPasswordController.requestPassw
 router.patch("/reset/password", resetPasswordController.resetPassword);
 
 router.post("/signup", userController.signup);
+router.post("/add-doctor", userController.addDoctor);
 
 router.post("/login", userController.login);
 
