@@ -74,7 +74,7 @@ app.use('/api/user', userRoutes)
 app.use('/api/availability', availabilityRoutes)
 app.use('/api/appointment', appointmentRoutes)
 app.use('/api/notification', notificationRoutes)
-app.use('/api/specialties', specialtyRoutes)
+app.use('/api/specialities', specialtyRoutes)
 app.use("/api/EmailVerification", EmailVerificationRoutes);
 app.use("/api/medicalRecord", medicalRecordRoutes);
 
