@@ -4,6 +4,7 @@ const app = express()
 const http = require('http')
 const port = process.env.PORT || 5000
 const multer = require('multer');
+const cors = require("cors");
 
 const server = http.createServer(app)
 const { io } = require('./socket/socketServer')
@@ -15,6 +16,7 @@ const notificationRoutes = require('./routes/notification')
 const EmailVerificationRoutes = require("./routes/EmailVerification");
 const medicalRecordRoutes = require("./routes/medicalRecord");
 const specialtyRoutes = require("./routes/specialty");
+const questionRoutes = require("./routes/question");
 
 server.listen(port, () => {
   console.log('Listening on ' + port)
@@ -28,7 +30,13 @@ mongoose
   .catch((e) => console.log('Connexion à MongoDB échouée !', e))
 
 app.use(express.json())
-
+app.use(
+  cors({
+    origin: "*",
+    methods: ["POST", "GET", "DELETE", "PUT", "PATCH"],
+    credentials: true,
+  })
+);
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader(
@@ -77,5 +85,6 @@ app.use('/api/notification', notificationRoutes)
 app.use('/api/specialities', specialtyRoutes)
 app.use("/api/EmailVerification", EmailVerificationRoutes);
 app.use("/api/medicalRecord", medicalRecordRoutes);
+app.use("/api/questions",questionRoutes );
 
 module.exports = app

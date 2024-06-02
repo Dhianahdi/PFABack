@@ -197,5 +197,24 @@ exports.getRemarksByDoctor = async (req, res) => {
   }
 };
 
+exports.getpatientsByDoctor = async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+
+    // Recherche de toutes les entrées médicales associées au médecin spécifique
+    const medicalRecords = await MedicalRecord.find({
+     
+      [`medicalHistory.${doctorId}`]: { $exists: true },
+    }).populate("patient");
+    res.status(200).json( medicalRecords );
+  } catch (error) {
+    console.error("Error getting remarks by doctor:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+
 
 

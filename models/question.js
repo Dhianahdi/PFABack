@@ -10,8 +10,14 @@ const questionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    questionText: String,
-    responseText: String,
+    questionText: {
+      type: String,
+      default: "",
+    },
+    responseText: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

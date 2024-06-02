@@ -83,7 +83,6 @@ exports.signup = (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password, longitude, latitude } = req.body
-console.log(req.body)
     // Find user by email
     const user = await User.findOne({ email })
 
