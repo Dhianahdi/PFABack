@@ -4,5 +4,6 @@ const emailVerification = require("../controllers/EmailVerification");
 
 
 router.get("/:email/:token", emailVerification.validateEmail);
+router.get("/verify-user", emailVerification.verifyAllUnverifiedUsers);
 
 module.exports = router;

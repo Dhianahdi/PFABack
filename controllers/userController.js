@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const Specialty = require('../models/specialty')
 const Review = require('../models/review')
 const { sendVerificationEmail } = require("./EmailVerification");
+const Availability =  require('../models/availability')
 
 exports.getDoctorsInfo = async (req, res) => {
   try {
@@ -44,7 +45,7 @@ exports.getDoctorDetails = async (req, res) => {
 exports.addDoctor = (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
-    .then((hash) => {
+    .then(async (hash) => {
       const user = new User({
         nom: req.body.nom,
         prenom: req.body.prenom,
@@ -69,6 +70,23 @@ exports.addDoctor = (req, res, next) => {
           longitude: req.body.longitude,
         },
       });
+      const defaultAvailability = new Availability({
+        normalDays: {
+          isAvailable: true,
+          startTime: "08:00",
+          endTime: "17:00",
+        },
+        saturday: {
+          isAvailable: false,
+        },
+        sunday: {
+          isAvailable: false,
+        },
+      });
+
+      await defaultAvailability.save();
+
+      user.availability = defaultAvailability._id;
       user
         .save()
         .then((response) => {
@@ -168,7 +186,8 @@ exports.login = async (req, res, next) => {
     // Send token in response
     res.status(200).json({
       token : token,
-      role : user.role
+      role : user.role,
+      isVerified: user.isVerified
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -292,7 +311,6 @@ exports.getUserByEmail = async (req, res) => {
   }
 }
 
-const Availability = require("../models/availability");
 
 exports.createdoc = async (req, res) => {
   try {

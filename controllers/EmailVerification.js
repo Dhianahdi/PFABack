@@ -63,7 +63,7 @@ exports.sendVerificationEmail = async (req, res) => {
               <p>Bonjour ${prenom} ${nom},</p>
               <p>Merci de vous être inscrit. Veuillez cliquer sur le bouton ci-dessous pour valider votre adresse e-mail :</p>
               <div style="text-align: center;">
-                <a href="http://localhost:5000/api/EmailVerification/${email}/${token}" class="button">Valider votre e-mail</a>
+                <a href="http://localhost:4200/email-verified" class="button">Valider votre e-mail</a>
               </div>
               <p>Le lien de validation est valide pour trois jours. Si le lien expire, veuillez créer un nouveau compte et valider votre e-mail avec le nouveau lien qui vous sera envoyé par e-mail.</p>
               <div class="footer">
@@ -80,6 +80,27 @@ exports.sendVerificationEmail = async (req, res) => {
     console.log(error);
   }
 };
+
+exports.verifyAllUnverifiedUsers = async (req, res) => {
+  try {
+    const result = await User.updateMany(
+      { isVerified: false },
+      { $set: { isVerified: true } }
+    );
+    res
+      .status(200)
+      .json({
+        message:
+          "Tous les utilisateurs non vérifiés ont été vérifiés avec succès",
+        result,
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.validateEmail = async (req, res) => {
   try {
     const { email, token } = req.params;
